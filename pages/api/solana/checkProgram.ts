@@ -1,4 +1,4 @@
-import { Connection, PublicKey  } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSafeUrl } from '@solana/lib';
 import path from 'path';
@@ -14,24 +14,24 @@ export default async function checkProgram(
   try {
     const programId = req.body.programId as PublicKey;
     const url = getSafeUrl();
-    const connection = new Connection(url, "confirmed");
-    const publicKey = undefined;
-    const programInfo = undefined;
+    const connection = new Connection(url, 'confirmed');
+    const publicKey = new PublicKey(programId);
+    const programInfo = await connection.getAccountInfo(publicKey);
 
     if (programInfo === null) {
-        if (fs.existsSync(PROGRAM_SO_PATH)) {
-            throw new Error(
-              'Program needs to be deployed with `solana program deploy`',
-            );
-        } else {
-          throw new Error('Program needs to be built and deployed');
-        }
+      if (fs.existsSync(PROGRAM_SO_PATH)) {
+        throw new Error(
+          'Program needs to be deployed with `solana program deploy`'
+        );
+      } else {
+        throw new Error('Program needs to be built and deployed');
+      }
     } else if (!programInfo.executable) {
       throw new Error(`Program is not executable`);
     }
 
     res.status(200).json(true);
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     res.status(500).json(error);
   }
